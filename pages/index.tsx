@@ -1,11 +1,15 @@
 import Head from "next/head";
-import Image from "next/image";
 import styles from "@/styles/Home.module.css";
 import { useCallback, useRef, useState } from "react";
+import { postWhichCelebrity } from "@/utils/postWhichCelebrity";
+import CelebrityResult from "@/components/CelebrityResult";
+import { WhichCelebrityResponse } from "@/types";
 
 export default function Home() {
   const cameraPreviewEl = useRef<HTMLVideoElement>(null);
   const [capturing, setCapturing] = useState(false);
+  const [snapshot, setSnapshot] = useState<string>();
+  const [response, setResponse] = useState<WhichCelebrityResponse>();
 
   const beginCapture = useCallback(
     async () => {
@@ -35,11 +39,21 @@ export default function Home() {
       }
 
       ctx.drawImage(cameraPreviewEl.current, 0, 0, canvas.width, canvas.height);
-      // const dataUrl = canvas.toDataURL('image/jpeg');
-      // document.getElementById('frame').src = dataUrl;
-      // console.log(dataUrl);
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          return null;
+        }
+
+        if (snapshot) {
+          URL.revokeObjectURL(snapshot);
+        }
+        setSnapshot(URL.createObjectURL(blob));
+
+        const resp = await postWhichCelebrity(blob);
+        setResponse(resp);
+      });
     },
-    []
+    [snapshot]
   );
 
   return (
@@ -66,7 +80,7 @@ export default function Home() {
               📸
             </button>
           )}
-          {/* <Image alt="Preview" id="frame" src="" width={800} height={600} /> */}
+          { snapshot && <CelebrityResult snapshot={snapshot} response={response} />}
       </main>
     </>
   );
