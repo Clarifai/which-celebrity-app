@@ -1,13 +1,17 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
-
-type Data = {
-  name: string
-}
 
 export default function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<WhichCelebrityResponse>
 ) {
-  res.status(200).json({ name: 'John Doe' })
+  if (req.method !== 'POST') {
+    console.warn(`Method ${req.method} not allowed for endpoint /which-celebrity!`);
+    return res.status(405).end();
+  }
+  const score = Math.random();
+  const response: WhichCelebrityResponse = score > 0.7
+    ? { name: 'John Doe', score, recognized: true }
+    : { recognized: false };
+
+  res.status(200).json(response);
 }

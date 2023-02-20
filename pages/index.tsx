@@ -66,7 +66,7 @@ export default function Home() {
               📸
             </button>
           )}
-          <Image alt="Preview" id="frame" src="" width={800} height={600} />
+          {/* <Image alt="Preview" id="frame" src="" width={800} height={600} /> */}
       </main>
     </>
   );
